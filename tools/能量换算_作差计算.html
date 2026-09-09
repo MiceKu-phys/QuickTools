@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>能量·波数换算与作差（A − B）</title>
+<style>
+  /* 默认浅色纸；夜纸手动切换 */
+  :root{
+    --paper:#f8f4e9;
+    --card:#fdfbf4;
+    --ink:#30302c;
+    --muted:#8a867a;
+    --line:#e7e0cf;
+    --rule:#d5cdb6;
+    --accent:#5b7184;
+    --code:#47525f;
+    --out-ink:#8f8a7d;      /* 输出态文字 */
+    --out-bg:#f1ecdf;
+  }
+  html[data-theme=dark]{
+    --paper:#1b1914;
+    --card:#232018;
+    --ink:#e6e0d0;
+    --muted:#9a9384;
+    --line:#3d3729;
+    --rule:#58503a;
+    --accent:#97aec3;
+    --code:#cdd7e0;
+    --out-ink:#7c7668;
+    --out-bg:#292518;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Roboto,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;padding:32px 18px 60px;
+  }
+  .sheet{max-width:820px;margin:0 auto}
+
+  header{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .htext{flex:1;min-width:280px}
+  .htext h1{
+    font-family:Georgia,"Songti SC","Noto Serif SC","SimSun",serif;
+    font-weight:500;font-size:25px;margin:0 0 5px;letter-spacing:.5px;
+  }
+  .htext .sub{color:var(--muted);font-size:13.5px}
+  .formula{
+    margin-top:12px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    font-family:Georgia,ui-serif,"Songti SC",serif;font-style:italic;
+    font-size:13.5px;color:var(--muted);letter-spacing:.3px;
+  }
+  .formula b{color:var(--code);font-style:normal;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .toprow{display:flex;align-items:flex-start;gap:12px}
+  .iconbtn{
+    font-family:inherit;font-size:11.5px;letter-spacing:.08em;border-radius:2px;cursor:pointer;
+    padding:4px 10px;background:transparent;color:var(--muted);
+    border:1px solid var(--line);transition:all .12s;white-space:nowrap;
+  }
+  .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:2px;
+    padding:2px 26px 14px;margin-bottom:16px;
+  }
+  .card.active{border-color:var(--accent)}
+  .card.out .field input{color:var(--out-ink);border-color:var(--line);background:var(--out-bg)}
+  .card.out .field label{color:var(--out-ink)}
+
+  .head{
+    display:flex;align-items:center;gap:10px;margin:13px 0 11px;flex-wrap:wrap;
+    font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-weight:600;
+  }
+  .head .line{flex:1;height:1px;background:var(--line);min-width:16px}
+  .head .mode{
+    margin-left:auto;display:flex;align-items:center;gap:8px;
+    font-size:12px;text-transform:none;letter-spacing:.02em;font-weight:500;color:var(--muted);
+  }
+  .head .mode label{
+    display:flex;align-items:center;gap:5px;cursor:pointer;padding:3px 8px;
+    border:1px solid transparent;border-radius:2px;
+  }
+  .head .mode label:hover{color:var(--accent)}
+  .head .mode input{accent-color:var(--accent);margin:0;width:13px;height:13px;cursor:pointer}
+  .head .mode .on{font-weight:600}
+  .card.active .head .mode .on{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:11px 16px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 3px 1px;letter-spacing:.03em}
+  .field .inputrow{display:flex;align-items:stretch}
+  .field input{
+    width:100%;min-width:0;flex:1;padding:8px 10px;font-size:14.5px;
+    border:1px solid var(--rule);background:transparent;color:var(--code);
+    font-family:ui-monospace,Consolas,"Courier New",monospace;
+    outline:none;border-radius:0;transition:border-color .12s,background .12s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 1px 0 0 var(--accent)}
+  .field input::placeholder{color:color-mix(in srgb,var(--muted) 55%,transparent);font-style:italic}
+  .field .suffix{
+    display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--muted);
+    border:1px solid var(--rule);border-left:none;background:color-mix(in srgb,var(--paper) 60%,transparent);
+    white-space:nowrap;font-family:Georgia,serif;
+  }
+  .field .suffix sup{font-size:9px;line-height:1}
+  .card.out .suffix{color:var(--out-ink)}
+
+  .note{margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .note.err{color:#a1462f}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;margin-top:2px;align-items:center}
+  button.act{
+    font-family:inherit;font-size:12.5px;letter-spacing:.05em;border-radius:2px;cursor:pointer;
+    padding:6px 13px;background:transparent;color:var(--ink);
+    border:1px solid var(--rule);transition:all .12s;
+  }
+  button.act:hover{border-color:var(--accent);color:var(--accent)}
+  .hint{color:var(--muted);font-size:12px;font-style:italic;font-family:Georgia,"Songti SC",serif}
+  footer{margin-top:4px;color:var(--muted);font-size:11.5px;text-align:center;font-family:Georgia,"Songti SC",serif;font-style:italic}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <div class="htext">
+      <h1>能量 · 波数换算与作差</h1>
+      <div class="sub">同一光子用 E、λ、ν、ν̃ 表述并互算。给定基准点 A，B 与 Δ＝A−B 中再给一个，第三个自动算出。</div>
+      <div class="formula">
+        E = hc/λ　·　λ[nm] = <b>1239841.9843</b> / E[meV]　·　1 meV ↔ <b>241.7989</b> GHz ↔ <b>8.065544</b> cm<sup>−1</sup>
+      </div>
+    </div>
+    <button class="iconbtn" id="themeBtn" type="button">☾ 夜纸</button>
+  </header>
+
+  <!-- 卡 1：基准点 A（恒为输入） -->
+  <section class="card active" id="cardA">
+    <div class="head">基准点 A<span class="mode"><span class="on">· 输入</span></span><span class="line"></span></div>
+    <div class="grid">
+      <div class="field"><label for="a-meV">能量 E_A</label><div class="inputrow"><input id="a-meV" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 2000"><span class="suffix">meV</span></div></div>
+      <div class="field"><label for="a-nm">波长 λ_A</label><div class="inputrow"><input id="a-nm" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 620"><span class="suffix">nm</span></div></div>
+      <div class="field"><label for="a-GHz">频率 ν_A</label><div class="inputrow"><input id="a-GHz" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 483597.85"><span class="suffix">GHz</span></div></div>
+      <div class="field"><label for="a-cm1">波数 ν̃_A</label><div class="inputrow"><input id="a-cm1" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 16129.09"><span class="suffix">cm<sup>-1</sup></span></div></div>
+    </div>
+    <div class="note" id="noteA" style="display:none"></div>
+  </section>
+
+  <!-- 卡 2：谱线 B -->
+  <section class="card out" id="cardB">
+    <div class="head">谱线 B
+      <span class="mode">
+        <span class="on" id="roleB">· 输出</span>
+        <label title="以 B 为输入基准"><input type="radio" name="mode" value="B" id="modeB"><span>以 B 为输入</span></label>
+      </span><span class="line"></span>
+    </div>
+    <div class="grid">
+      <div class="field"><label for="bi-meV">能量 E_B</label><div class="inputrow"><input id="bi-meV" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="—"><span class="suffix">meV</span></div></div>
+      <div class="field"><label for="bi-nm">波长 λ_B</label><div class="inputrow"><input id="bi-nm" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="—"><span class="suffix">nm</span></div></div>
+      <div class="field"><label for="bi-GHz">频率 ν_B</label><div class="inputrow"><input id="bi-GHz" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="—"><span class="suffix">GHz</span></div></div>
+      <div class="field"><label for="bi-cm1">波数 ν̃_B</label><div class="inputrow"><input id="bi-cm1" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="—"><span class="suffix">cm<sup>-1</sup></span></div></div>
+    </div>
+    <div class="note" id="noteB" style="display:none"></div>
+  </section>
+
+  <!-- 卡 3：差值 Δ -->
+  <section class="card active" id="cardD">
+    <div class="head">差值 Δ ＝ A − B
+      <span class="mode">
+        <span class="on" id="roleD">· 输入</span>
+        <label title="以 Δ 为输入基准"><input type="radio" name="mode" value="delta" id="modeDelta" checked><span>以 Δ 为输入</span></label>
+      </span><span class="line"></span>
+    </div>
+    <div class="grid">
+      <div class="field"><label for="di-meV">能量差 ΔE</label><div class="inputrow"><input id="di-meV" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 4.1"><span class="suffix">meV</span></div></div>
+      <div class="field"><label for="di-cm1">波数差 Δν̃（拉曼常用）</label><div class="inputrow"><input id="di-cm1" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 33.07"><span class="suffix">cm<sup>-1</sup></span></div></div>
+      <div class="field"><label for="di-GHz">频率差 Δν</label><div class="inputrow"><input id="di-GHz" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="如 991.35"><span class="suffix">GHz</span></div></div>
+    </div>
+    <div class="note" id="noteD" style="display:none"></div>
+  </section>
+
+  <div class="bar">
+    <button class="act" id="btnClear" type="button">清空</button>
+    <button class="act" id="btnExample" type="button">恢复示例</button>
+    <span class="hint">规则：最后编辑的那一侧（B 或 Δ）就是输入，另一侧自动变成灰底输出；点灰底任意格直接输入即可切换。</span>
+  </div>
+
+  <footer>单文件 · 离线可用 · 输出格可直接长按 / 框选复制 · 常数 CODATA 2018（h = 6.62607015×10⁻³⁴ J·s，e = 1.602176634×10⁻¹⁹ C，c = 299792458 m/s）</footer>
+</div>
+
+<script>
+'use strict';
+/* CODATA 2018（以 eV 计） */
+const F = {
+  nmPerEv: 1239.8419843320026,
+  GHzPerEv: 241798.92420849183,
+  cm1PerEv: 8065.543937342234,
+};
+const toMeV = {
+  meV: v => v,
+  nm:  v => F.nmPerEv * 1000 / v,
+  GHz: v => v / F.GHzPerEv * 1000,
+  cm1: v => v / F.cm1PerEv * 1000,
+};
+const fromMeV = {
+  meV: x => x,
+  nm:  x => F.nmPerEv * 1000 / x,
+  GHz: x => x * F.GHzPerEv / 1000,
+  cm1: x => x * F.cm1PerEv / 1000,
+};
+function parseNum(s){
+  if (s == null) return NaN;
+  s = String(s).replace(/[,，\s]/g,'');
+  if (s === '') return NaN;
+  const v = Number(s);
+  return Number.isFinite(v) ? v : NaN;
+}
+function fmt(x){
+  if (!Number.isFinite(x)) return '';
+  if (x === 0) return '0';
+  const a = Math.abs(x);
+  if (a >= 1e-6 && a < 1e9) return String(parseFloat(x.toPrecision(10)));
+  return x.toExponential(6);
+}
+function fmtSigned(x){ return x < 0 ? '−' + fmt(-x) : fmt(x); }
+
+const $ = id => document.getElementById(String(id).replace(/^#/, ''));
+let anchorA = null;                 // {unit, val} —— 最近输入的 A 单位
+let anchorT = null;                 // {g:'B'|'D', unit, val} —— 最近输入的 B 或 Δ 单位
+const UNITS = { A:['meV','nm','GHz','cm1'], B:['meV','nm','GHz','cm1'], D:['meV','cm1','GHz'] };
+const P = { A:'a-', B:'bi-', D:'di-' };
+
+function setNote(id, txt, isErr){
+  const n = $(id);
+  n.textContent = txt || '';
+  n.style.display = txt ? 'block' : 'none';
+  n.className = 'note' + (isErr ? ' err' : '');
+}
+
+/* 角色与卡外观：输入卡 = active(accent 边框)；输出卡 = out(灰底) */
+function paint(){
+  const g = anchorT ? anchorT.g : 'D';        // 默认以 Δ 卡为输入侧
+  $('#cardB').classList.toggle('active', g === 'B');
+  $('#cardB').classList.toggle('out',    g !== 'B');
+  $('#cardD').classList.toggle('active', g === 'D');
+  $('#cardD').classList.toggle('out',    g !== 'D');
+  $('#roleB').textContent = (g === 'B') ? '· 输入' : '· 输出';
+  $('#roleD').textContent = (g === 'D') ? '· 输入' : '· 输出';
+  $('#modeB').checked = (g === 'B');
+  $('#modeDelta').checked = (g === 'D');
+}
+
+function compute(){
+  setNote('noteA',''); setNote('noteB',''); setNote('noteD','');
+  /* 输出组清空辅助 */
+  function clearB(){ for (const u of UNITS.B) $('#bi-'+u).value=''; }
+  function clearD(){ for (const u of UNITS.D) $('#di-'+u).value=''; }
+
+  if (!anchorA){ clearB(); clearD(); setNote('noteA','输入 A 点的任一单位。'); paint(); return; }
+  const Ea = toMeV[anchorA.unit](anchorA.val);
+  if (!Number.isFinite(Ea) || Ea <= 0){ setNote('noteA','A 点能量无效。', true); paint(); return; }
+  for (const u of UNITS.A) if (u !== anchorA.unit) $('#a-'+u).value = fmt(fromMeV[u](Ea));
+
+  if (!anchorT){
+    /* 只给 A：默认 Δ = 0，B = A */
+    clearD();
+    for (const u of UNITS.B) $('#bi-'+u).value = fmt(fromMeV[u](Ea));
+    setNote('noteD','再输入 B 或 Δ 的任意一格即开始作差。');
+    paint();
+    return;
+  }
+  const tMeV = toMeV[anchorT.unit](anchorT.val);
+  if (!Number.isFinite(tMeV) || tMeV < 0){ setNote('noteB','输入值无效。', true); paint(); return; }
+
+  if (anchorT.g === 'D'){
+    /* Δ 输入：B = A − Δ */
+    const dMeV = tMeV;
+    for (const u of UNITS.D) if (u !== anchorT.unit) $('#di-'+u).value = fmt(fromMeV[u](dMeV));
+    const Eb = Ea - dMeV;
+    if (Eb <= 0){ clearB(); setNote('noteB','B 能量非正（Δ ≥ A），请减小 Δ。', true); paint(); return; }
+    for (const u of UNITS.B) $('#bi-'+u).value = fmt(fromMeV[u](Eb));
+    setNote('noteD', `Δ ＝ ${fmt(Math.abs(dMeV))} meV ＝ ${fmt(Math.abs(dMeV)/1000*F.cm1PerEv)} cm⁻¹ ＝ ${fmt(Math.abs(dMeV)/1000*F.GHzPerEv)} GHz`);
+  } else {
+    /* B 输入：Δ = A − B */
+    const Eb = tMeV;
+    for (const u of UNITS.B) if (u !== anchorT.unit) $('#bi-'+u).value = fmt(fromMeV[u](Eb));
+    const dMeV = Ea - Eb;
+    $('#di-meV').value = fmtSigned(dMeV);
+    $('#di-cm1').value = fmtSigned(dMeV/1000*F.cm1PerEv);
+    $('#di-GHz').value = fmtSigned(dMeV/1000*F.GHzPerEv);
+    setNote('noteD', `Δ ＝ A − B ＝ ${fmtSigned(dMeV)} meV（B 高于 A 为负）`);
+  }
+  paint();
+}
+
+function wireA(u){
+  const el = $('#a-'+u);
+  el.addEventListener('input', () => {
+    const raw = (el.value || '').trim();
+    const v = parseNum(raw);
+    anchorA = (raw !== '' && Number.isFinite(v) && v > 0) ? { unit:u, val:v } : null;
+    compute();
+  });
+}
+function wireT(g, u){
+  const el = $(P[g]+u);
+  el.addEventListener('input', () => {
+    const raw = (el.value || '').trim();
+    const v = parseNum(raw);
+    if (raw !== '' && Number.isFinite(v) && v >= 0){
+      anchorT = { g, unit:u, val:v };   // 最后输入 = 当前输入侧
+    } else {
+      anchorT = null;
+    }
+    compute();
+  });
+}
+UNITS.A.forEach(u => wireA(u));
+UNITS.B.forEach(u => wireT('B', u));
+UNITS.D.forEach(u => wireT('D', u));
+
+/* radio：显式指定输入侧。若该侧当前显示着推算值，就把它转为输入继续改 */
+function useAsInput(g){
+  const raw = (g === 'B' ? $('#bi-meV').value : $('#di-meV').value).trim();
+  if (raw !== ''){
+    const v = parseNum(raw);
+    if (Number.isFinite(v) && v >= 0){ anchorT = { g, unit:'meV', val:v }; }
+    else anchorT = null;
+  } else {
+    anchorT = null;                       // 该侧无值：等用户在格子里输入
+  }
+  compute();
+}
+$('#modeB').addEventListener('change', () => { if ($('#modeB').checked) useAsInput('B'); });
+$('#modeDelta').addEventListener('change', () => { if ($('#modeDelta').checked) useAsInput('D'); });
+
+function loadExample(){
+  anchorA = { unit:'nm', val:620 };
+  for (const u of UNITS.A) $('#a-'+u).value='';
+  $('#a-nm').value = '620';
+  anchorT = { g:'D', unit:'cm1', val:33.0686 };
+  for (const u of UNITS.D) $('#di-'+u).value='';
+  $('#di-cm1').value = '33.0686';
+  compute();
+}
+$('btnExample').addEventListener('click', loadExample);
+$('btnClear').addEventListener('click', () => {
+  anchorA = null; anchorT = null;
+  for (const u of UNITS.A) $('#a-'+u).value='';
+  for (const u of UNITS.B) $('#bi-'+u).value='';
+  for (const u of UNITS.D) $('#di-'+u).value='';
+  setNote('noteA',''); setNote('noteB',''); setNote('noteD','');
+  paint();
+});
+
+/* 夜纸开关 */
+$('themeBtn').addEventListener('click', () => {
+  const on = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', on ? '' : 'dark');
+  $('themeBtn').textContent = on ? '☾ 夜纸' : '☀ 纸白';
+});
+
+loadExample();
+</script>
+</body>
+</html>

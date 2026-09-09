@@ -1,0 +1,11 @@
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# 构建临时产物（保留源码，不提交生成物，除非另有约定）
+# *.tmp
+# build/
+plan.md
