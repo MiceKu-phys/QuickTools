@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Energy scale in GaAs（l_B / E_C / E_Z）</title>
+<style>
+  :root{
+    --paper:#f8f4e9; --card:#fdfbf4; --ink:#30302c; --muted:#8a867a;
+    --line:#e7e0cf; --rule:#d5cdb6; --accent:#5b7184; --code:#47525f;
+    --out-ink:#8f8a7d; --out-bg:#f1ecdf;
+  }
+  html[data-theme=dark]{
+    --paper:#1b1914; --card:#232018; --ink:#e6e0d0; --muted:#9a9384;
+    --line:#3d3729; --rule:#58503a; --accent:#97aec3; --code:#cdd7e0;
+    --out-ink:#7c7668; --out-bg:#292518;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Microsoft YaHei",Roboto,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;padding:32px 18px 60px;
+  }
+  .sheet{max-width:820px;margin:0 auto}
+  header{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .htext{flex:1;min-width:280px}
+  .htext h1{
+    font-family:Georgia,"Songti SC","Noto Serif SC","SimSun",serif;
+    font-weight:500;font-size:25px;margin:0 0 5px;letter-spacing:.5px;
+  }
+  .htext .sub{color:var(--muted);font-size:13.5px}
+  .formula{
+    margin-top:12px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    font-family:Georgia,ui-serif,"Songti SC",serif;font-style:italic;
+    font-size:13.5px;color:var(--muted);letter-spacing:.3px;
+  }
+  .formula b{color:var(--code);font-style:normal;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .fconst{margin-top:5px;font-size:12px;color:var(--muted);letter-spacing:.2px}
+  .gtitle{margin:12px 0 6px;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-weight:600}
+  .conv{margin-top:10px;padding-top:8px;border-top:1px dashed var(--rule);font-size:12px;color:var(--muted)}
+  .conv b{color:var(--code);font-weight:normal;font-family:ui-monospace,Consolas,monospace}
+  .iconbtn{
+    font-family:inherit;font-size:11.5px;letter-spacing:.08em;border-radius:2px;cursor:pointer;
+    padding:4px 10px;background:transparent;color:var(--muted);
+    border:1px solid var(--line);transition:all .12s;white-space:nowrap;
+  }
+  .iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:2px;
+    padding:2px 26px 16px;margin-bottom:16px;
+  }
+  .card.active{border-color:var(--accent)}
+  .card.out .field input{color:var(--out-ink);border-color:var(--line);background:var(--out-bg)}
+  .card.out .field label{color:var(--out-ink)}
+  .head{
+    display:flex;align-items:center;gap:10px;margin:13px 0 11px;flex-wrap:wrap;
+    font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-weight:600;
+  }
+  .head .line{flex:1;height:1px;background:var(--line);min-width:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:11px 16px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 3px 1px;letter-spacing:.03em}
+  .field .inputrow{display:flex;align-items:stretch}
+  .field input{
+    width:100%;min-width:0;flex:1;padding:8px 10px;font-size:14.5px;
+    border:1px solid var(--rule);background:transparent;color:var(--code);
+    font-family:ui-monospace,Consolas,"Courier New",monospace;
+    outline:none;border-radius:0;transition:border-color .12s,background .12s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 1px 0 0 var(--accent)}
+  .field input::placeholder{color:color-mix(in srgb,var(--muted) 55%,transparent);font-style:italic}
+  .field .suffix{
+    display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--muted);
+    border:1px solid var(--rule);border-left:none;background:color-mix(in srgb,var(--paper) 60%,transparent);
+    white-space:nowrap;font-family:Georgia,serif;
+  }
+  .field .suffix sup{font-size:9px;line-height:1}
+  .note{margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .note.err{color:#a1462f}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;margin-top:2px;align-items:center}
+  button.act{
+    font-family:inherit;font-size:12.5px;letter-spacing:.05em;border-radius:2px;cursor:pointer;
+    padding:6px 13px;background:transparent;color:var(--ink);
+    border:1px solid var(--rule);transition:all .12s;
+  }
+  button.act:hover{border-color:var(--accent);color:var(--accent)}
+  .hint{color:var(--muted);font-size:12px;font-style:italic;font-family:Georgia,"Songti SC",serif}
+  footer{margin-top:4px;color:var(--muted);font-size:11.5px;text-align:center;font-family:Georgia,"Songti SC",serif;font-style:italic}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <div class="htext">
+      <h1>Energy scale in GaAs（l_B / E_C / E_Z）</h1>
+      <div class="sub">输入外场（B、倾角 θ、宽度系数 w）与样品参数（g、k、m*/m₀、ε_r），输出磁长度、回旋能、库伦能、塞曼能。默认 GaAs：ε_r=12.58、m*/m₀=0.067、g=0.44。</div>
+      <div class="formula">
+        l_B = √(ħ/e·B<sub>⊥</sub>)　·　E_C = w·e²/(4π·ε₀ε_r·l_B)　·　E_Z = μ_B·B·(g−k·B)　·　ħω<sub>c</sub> = ħ·e·B<sub>⊥</sub>/m*
+      </div>
+      <div class="fconst">常数：ε₀=8.85×10⁻¹² F/m　·　ħ=1.0546×10⁻³⁴ J·s　·　e=1.602×10⁻¹⁹ C　·　m₀=9.109×10⁻³¹ kg　·　μ_B=0.05788 meV/T</div>
+    </div>
+    <button class="iconbtn" id="themeBtn" type="button">☾ 夜纸</button>
+  </header>
+
+  <!-- 卡 1：输入 -->
+  <section class="card active" id="cardIn">
+    <div class="head">输入<span class="line"></span></div>
+    <div class="gtitle">外场与几何</div>
+    <div class="grid">
+      <div class="field"><label for="in-B">磁场 B</label><div class="inputrow"><input id="in-B" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="1"><span class="suffix">T</span></div></div>
+      <div class="field"><label for="in-theta">样品倾角 θ</label><div class="inputrow"><input id="in-theta" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="0"><span class="suffix">°</span></div></div>
+      <div class="field"><label for="in-width">宽度系数 w（×E_C）</label><div class="inputrow"><input id="in-width" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="1"><span class="suffix">—</span></div></div>
+    </div>
+    <div class="gtitle">样品参数</div>
+    <div class="grid">
+      <div class="field"><label for="in-g">g-factor</label><div class="inputrow"><input id="in-g" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="0.44"><span class="suffix">—</span></div></div>
+      <div class="field"><label for="in-stiff">刚度系数 k</label><div class="inputrow"><input id="in-stiff" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="0"><span class="suffix">—</span></div></div>
+      <div class="field"><label for="in-mratio">有效质量 m*/m₀</label><div class="inputrow"><input id="in-mratio" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="0.067"><span class="suffix">×m₀</span></div></div>
+      <div class="field"><label for="in-epr">介电常数 ε_r</label><div class="inputrow"><input id="in-epr" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="12.58"><span class="suffix">—</span></div></div>
+    </div>
+    <div class="note" id="noteIn"></div>
+  </section>
+
+  <!-- 卡 2：结果 -->
+  <section class="card out" id="cardOut">
+    <div class="head">结果（灰底可框选复制）<span class="line"></span></div>
+    <div class="grid">
+      <div class="field"><label for="o-lb">磁长度 l_B</label><div class="inputrow"><input id="o-lb" type="text" readonly tabindex="-1"><span class="suffix">nm</span></div></div>
+      <div class="field"><label for="o-Bperp">垂直场分量 B⊥</label><div class="inputrow"><input id="o-Bperp" type="text" readonly tabindex="-1"><span class="suffix">T</span></div></div>
+      <div class="field"><label for="o-wc">回旋能 ħω<sub>c</sub></label><div class="inputrow"><input id="o-wc" type="text" readonly tabindex="-1"><span class="suffix">meV</span></div></div>
+      <div class="field"><label for="o-Ec">库伦能 E_C（w 修正）</label><div class="inputrow"><input id="o-Ec" type="text" readonly tabindex="-1"><span class="suffix">meV</span></div></div>
+      <div class="field"><label for="o-Ez">塞曼能 E_Z</label><div class="inputrow"><input id="o-Ez" type="text" readonly tabindex="-1"><span class="suffix">meV</span></div></div>
+    </div>
+    <div class="note" id="noteOut"></div>
+    <div class="conv">能量换算：1 meV ↔ <b>241.7989</b> GHz ↔ <b>8.065544</b> cm⁻¹ ↔ <b>1239.842</b> nm</div>
+  </section>
+
+  <div class="bar">
+    <button class="act" id="btnDefault" type="button">恢复默认</button>
+    
+  </div>
+
+ 
+</div>
+
+<script>
+'use strict';
+/* 物理常数（沿用用户给定值） */
+const C = {
+  ep0: 8.85e-12,                  // 真空介电常数 F/m
+  hbar: 6.62607e-34/(2*Math.PI),  // ħ J·s
+  qe: 1.602e-19,                  // e C
+  eFreeMass: 9.1093837e-31,       // m₀ kg
+  muB: 0.05788,                   // 玻尔磁子 meV/T
+  j2meV: 1e3/1.602e-19,           // J → meV 换算因子（1 J = 6.242e21 meV）
+};
+
+function parseNum(s){
+  if (s == null) return NaN;
+  s = String(s).replace(/[,，\s]/g,'');
+  if (s === '') return NaN;
+  const v = Number(s);
+  return Number.isFinite(v) ? v : NaN;
+}
+function fmt(x){
+  if (!Number.isFinite(x)) return '';
+  if (x === 0) return '0';
+  const a = Math.abs(x);
+  if (a >= 1e-6 && a < 1e9) return String(parseFloat(x.toPrecision(10)));
+  return x.toExponential(6);
+}
+const $ = id => document.getElementById(id);
+
+function setNote(id, txt, isErr){
+  const n = $(id);
+  n.textContent = txt || '';
+  n.className = 'note' + (isErr ? ' err' : '');
+}
+
+function compute(){
+  const B      = parseNum($('in-B').value);
+  const theta  = parseNum($('in-theta').value);
+  const w      = parseNum($('in-width').value);
+  const g      = parseNum($('in-g').value);
+  const k      = parseNum($('in-stiff').value);
+  const mratio = parseNum($('in-mratio').value);
+  const epr    = parseNum($('in-epr').value);
+  const out = ['o-lb','o-Bperp','o-wc','o-Ec','o-Ez'];
+
+  function fail(msg){ out.forEach(id => $(id).value=''); setNote('noteOut', msg, true); }
+  setNote('noteIn',''); setNote('noteOut','');
+
+  if (!(B > 0))             return fail('Postive magnetic field B is required.');
+  if (!Number.isFinite(theta)) return fail('倾角需为数值。');
+  const ct = Math.cos(theta*Math.PI/180);
+  if (!(ct > 1e-9))         return fail('cosθ ≤ 0，请减小倾角（θ<90°）。');
+  if (!(w > 0))             return fail('宽度系数 w 需 > 0。');
+  if (!Number.isFinite(g))  return fail('g-factor 需为数值。');
+  if (!Number.isFinite(k))  return fail('刚度系数需为数值。');
+  if (!(mratio > 0))        return fail('有效质量比 m*/m₀ 需 > 0。');
+  if (!(epr > 0))           return fail('介电常数 ε_r 需 > 0。');
+
+  const Bperp  = B*ct;                          // T
+  const mstar  = mratio*C.eFreeMass;            // kg
+  const lb_m   = Math.sqrt(C.hbar/(C.qe*Bperp)); // m
+  const lb_nm  = lb_m*1e9;                      // nm
+  const wc_meV = (C.hbar*C.qe*Bperp/mstar)*C.j2meV;    // 回旋能 meV
+  const Ec0    = 1000*C.qe*C.qe/(4*Math.PI*C.ep0*epr*C.qe*lb_m); // meV，未修正
+  const Ec     = w*Ec0;                          // meV，宽度修正后
+  const gEff   = g - k*B;                        // 有效 g 因子（刚度系数×总场）
+  const Ez     = B*gEff*C.muB;                   // meV
+
+  $('o-lb').value    = fmt(lb_nm);
+  $('o-Bperp').value = fmt(Bperp);
+  $('o-wc').value    = fmt(wc_meV);
+  $('o-Ec').value    = fmt(Ec);
+  $('o-Ez').value    = fmt(Ez);
+  setNote('noteOut',
+    `l_B=${fmt(lb_nm)} nm　·　ħω_c=${fmt(wc_meV)} meV　·　E_C=${fmt(Ec)} meV　·　E_Z=${fmt(Ez)} meV　·　E_C/E_Z=${fmt(Ec/Ez)}`);
+}
+
+const INS = ['in-B','in-theta','in-width','in-g','in-stiff','in-mratio','in-epr'];
+INS.forEach(id => $(id).addEventListener('input', compute));
+
+$('btnDefault').addEventListener('click', () => {
+  $('in-B').value='1'; $('in-theta').value='0'; $('in-width').value='1';
+  $('in-g').value='0.44'; $('in-stiff').value='0';
+  $('in-mratio').value='0.067'; $('in-epr').value='12.58';
+  compute();
+});
+
+/* 夜纸开关 */
+$('themeBtn').addEventListener('click', () => {
+  const on = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', on ? '' : 'dark');
+  $('themeBtn').textContent = on ? '☾ 夜纸' : '☀ 纸白';
+});
+
+compute();
+</script>
+</body>
+</html>
