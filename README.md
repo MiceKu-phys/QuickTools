@@ -22,12 +22,12 @@
 ### 远程打开（GitHub Pages）
 
 
-```
-https://MiceKu-phys.github.io/quicktools/tools/Shift_calculation.html
-https://MiceKu-phys.github.io/quicktools/tools/Energy_calculation.html
-https://MiceKu-phys.github.io/quicktools/tools/Time_conversion.html
 
-```
+- [Energy shift calculation（A − B）](https://MiceKu-phys.github.io/quicktools/tools/Shift_calculation.html)
+- [Energy scale in GaAs（l_B / ħω_c / E_C / E_Z）](https://MiceKu-phys.github.io/quicktools/tools/Energy_calculation.html)
+- [Time conversion（ISO / Unix / MATLAB）](https://MiceKu-phys.github.io/quicktools/tools/Time_conversion.html)
+
+
 
 入口页 `index.html` 提供封面与目录（SPA 原地切换，规划中）。
 
