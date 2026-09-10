@@ -23,9 +23,9 @@
 
 
 
-- [Energy shift calculation（A − B）](https://MiceKu-phys.github.io/quicktools/tools/Shift_calculation.html)
-- [Energy scale in GaAs（l_B / ħω_c / E_C / E_Z）](https://MiceKu-phys.github.io/quicktools/tools/Energy_calculation.html)
-- [Time conversion（ISO / Unix / MATLAB）](https://MiceKu-phys.github.io/quicktools/tools/Time_conversion.html)
+- [Energy shift calculation（A − B）](https://MiceKu-phys.github.io/QuickTools/tools/Shift_calculation.html)
+- [Energy scale in GaAs（l_B / ħω_c / E_C / E_Z）](https://MiceKu-phys.github.io/QuickTools/tools/Energy_calculation.html)
+- [Time conversion（ISO / Unix / MATLAB）](https://MiceKu-phys.github.io/QuickTools/tools/Time_conversion.html)
 
 
 
