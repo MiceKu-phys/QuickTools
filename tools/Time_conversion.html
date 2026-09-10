@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time conversion · ISO / Unix / MATLAB</title>
+<style>
+:root{--paper:#f8f4e9;--card:#fdfbf4;--ink:#30302c;--muted:#817b6d;--line:#e5dece;--rule:#cec5b0;--accent:#5b7184;--code:#3f4e5e;--out:#f0ebdf}
+html[data-theme=dark]{--paper:#1b1914;--card:#242119;--ink:#e7e0d0;--muted:#a29a8b;--line:#40392c;--rule:#5d543f;--accent:#a1b8ca;--code:#d4dee6;--out:#2c271d}
+*{box-sizing:border-box}body{margin:0;padding:30px 18px 60px;background:var(--paper);color:var(--ink);font:15px/1.6 "Segoe UI","Microsoft YaHei",sans-serif}main{max-width:920px;margin:auto}header{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}.title{flex:1}.title h1{font:500 26px Georgia,"Songti SC",serif;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}.theme{background:none;border:1px solid var(--line);color:var(--muted);padding:5px 10px;cursor:pointer}.card{background:var(--card);border:1px solid var(--line);padding:20px 24px;margin:0 0 16px}.card h2{font:500 17px Georgia,"Songti SC",serif;margin:0 0 13px;border-bottom:1px solid var(--line);padding-bottom:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px 17px}.field label{display:block;color:var(--muted);font-size:12px;margin:0 0 4px}.field input,.field select{width:100%;padding:9px 10px;border:1px solid var(--rule);background:transparent;color:var(--code);font:14px Consolas,monospace}.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 1px 0 var(--accent)}.hint,.note{font-size:12px;color:var(--muted);margin-top:10px}.note.err{color:#a1462f}.bar{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}button.action{padding:7px 13px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}button.action:hover{border-color:var(--accent);color:var(--accent)}.outputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 16px}.out{padding:10px 12px;background:var(--out);border-left:2px solid var(--accent)}.out label{display:block;color:var(--muted);font-size:12px}.out code{display:block;color:var(--code);font:14px/1.5 Consolas,monospace;overflow-wrap:anywhere;margin-top:2px}.formula{padding:9px 0;color:var(--muted);font:13px Georgia,"Songti SC",serif;border-bottom:1px dashed var(--rule);margin-bottom:14px}.table-wrap{overflow:auto}.formats{width:100%;border-collapse:collapse;font-size:13px}.formats th,.formats td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:8px 7px}.formats th{color:var(--muted);font-weight:500}.formats code,pre{font:12px/1.55 Consolas,monospace;color:var(--code)}pre{white-space:pre-wrap;background:var(--out);padding:12px;margin:8px 0 0;overflow:auto}.tabs{display:flex;gap:8px;margin-bottom:10px}.tabs button{border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);padding:4px 8px;cursor:pointer}.tabs button.active{border-color:var(--accent);color:var(--ink)}footer{text-align:center;color:var(--muted);font:12px Georgia,serif;margin-top:18px}@media(max-width:560px){body{padding:20px 11px 40px}.card{padding:17px 14px}.title h1{font-size:22px}}
+</style>
+</head>
+<body><main>
+<header><div class="title"><h1>时间转换</h1><div class="sub">ISO 时间 · Unix 时间戳 · MATLAB datenum</div></div><button class="theme" id="themeBtn">☼ 夜纸</button></header>
+
+<section class="card">
+  <h2>输入一个时间</h2>
+  <div class="grid">
+    <div class="field"><label for="dateInput">日期与时间</label><input id="dateInput" type="datetime-local" step="0.001"></div>
+    <div class="field"><label for="zone">无时区日期的解释</label><select id="zone"><option value="local">本地时区（浏览器所在电脑）</option><option value="utc">UTC</option></select></div>
+    <div class="field"><label for="stampInput">Unix 时间戳（可选，覆盖上面时间）</label><input id="stampInput" type="text" inputmode="decimal" placeholder="例如 1720000000 或 1720000000000"></div>
+    <div class="field"><label for="stampUnit">时间戳单位</label><select id="stampUnit"><option value="s">秒（s）</option><option value="ms">毫秒（ms）</option><option value="us">微秒（µs）</option><option value="ns">纳秒（ns）</option><option value="auto">自动判断（仅建议普通日期）</option></select></div>
+  </div>
+  <div class="hint">建议在不同程序之间保存 Unix 秒或 Unix 毫秒，并额外保存时区；不要依赖计算机本地时区。</div>
+  <div class="bar"><button class="action" id="nowBtn">使用当前时间</button><button class="action" id="exampleBtn">载入示例</button><button class="action" id="clearBtn">清空时间戳</button></div>
+  <div class="note" id="inputNote"></div>
+</section>
+
+<section class="card"><h2>转换结果</h2><div class="formula">Unix 秒 = 从 1970-01-01 00:00:00 UTC 起经过的秒数　·　MATLAB datenum = Unix 秒 / 86400 + 719529</div><div class="outputs">
+  <div class="out"><label>ISO 8601（UTC）</label><code id="isoOut"></code></div>
+  <div class="out"><label>Unix 秒（推荐的通用时间轴）</label><code id="sOut"></code></div>
+  <div class="out"><label>Unix 毫秒（JavaScript / 日志常用）</label><code id="msOut"></code></div>
+  <div class="out"><label>MATLAB datenum</label><code id="datenumOut"></code></div>
+</div><div class="note" id="resultNote"></div></section>
+
+<footer>离线单文件工具 · 时间点按 UTC 保存，显示时再选择时区</footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), DAY=86400000, MATLAB_EPOCH=719529;
+function pad(n,w=2){return String(n).padStart(w,'0')}
+function fmt(x){if(!Number.isFinite(x))return '';return Number.isInteger(x)?String(x):x.toFixed(9).replace(/0+$/,'').replace(/\.$/,'')}
+function parseStamp(raw,unit){
+  const n=Number(String(raw).replace(/[,，\s]/g,'')); if(!Number.isFinite(n))return NaN;
+  if(unit==='auto'){const a=Math.abs(n);unit=a>=1e17?'ns':a>=1e14?'us':a>=1e11?'ms':'s'}
+  return n*({s:1,ms:1e-3,us:1e-6,ns:1e-9}[unit]);
+}
+function localInputToSeconds(v){
+  if(!v)return NaN; const p=v.split(/[-T:]/).map(Number); if(p.some(Number.isNaN))return NaN;
+  const d=new Date(0); if($('zone').value==='utc')d.setUTCFullYear(p[0],p[1]-1,p[2]),d.setUTCHours(p[3]||0,p[4]||0,p[5]||0,Math.round((p[6]||0)*1000)); else d.setFullYear(p[0],p[1]-1,p[2]),d.setHours(p[3]||0,p[4]||0,p[5]||0,Math.round((p[6]||0)*1000)); return d.getTime()/1000;
+}
+function isoLocal(s){const d=new Date(s*1000), z=$('zone').value==='utc';return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(),3)}`}
+function sourceSeconds(){const stamp=$('stampInput').value.trim();if(stamp)return parseStamp(stamp,$('stampUnit').value);return localInputToSeconds($('dateInput').value)}
+function setText(id,v){$(id).textContent=v}
+function render(){const s=sourceSeconds(), valid=Number.isFinite(s); if(!valid){['isoOut','sOut','msOut','datenumOut'].forEach(id=>setText(id,''));$('resultNote').textContent='请输入有效日期，或输入有效的 Unix 时间戳。';$('resultNote').className='note err';return} const ms=s*1000, d=new Date(ms), iso=d.toISOString(), dn=s/86400+MATLAB_EPOCH;
+ setText('isoOut',iso);setText('sOut',fmt(s));setText('msOut',fmt(Math.round(ms)));setText('datenumOut',fmt(dn));$('resultNote').textContent=`当前时刻对应 UTC：${iso}；输入日期的无时区解释：${$('zone').value==='utc'?'UTC':'本地时区'}。`;$('resultNote').className='note';
+}
+function setNow(){const d=new Date();$('dateInput').value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(),3)}`;$('stampInput').value='';render()}
+$('nowBtn').onclick=setNow;$('exampleBtn').onclick=()=>{$('stampInput').value='1720000000.125';$('stampUnit').value='s';render()};$('clearBtn').onclick=()=>{$('stampInput').value='';render()};['dateInput','zone','stampInput','stampUnit'].forEach(id=>{ $(id).addEventListener('input',render); $(id).addEventListener('change',render); });
+$('themeBtn').onclick=()=>{const dark=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',dark?'':'dark');$('themeBtn').textContent=dark?'☼ 夜纸':'☀ 纸白'};
+setNow();
+</script></body></html>
