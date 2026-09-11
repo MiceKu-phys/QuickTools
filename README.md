@@ -12,6 +12,7 @@
 | Energy shift calculation（A − B） | 光子能量 E / 波长 λ / 频率 ν / 波数 ν̃ 互算；由基准点 A，给定谱线 B 或差值 Δ 之一即得另一个 | [`Shift_calculation.html`](tools/Shift_calculation.html) |
 | Energy scale in GaAs（l_B / ħω_c / E_C / E_Z） | 磁场中 GaAs 特征能量：磁长度、回旋能、库伦能（宽度修正）、塞曼能；样品参数 g、k、m*/m₀、ε_r 可调（默认 GaAs） | [`Energy_calculation.html`](tools/Energy_calculation.html) |
 | Time conversion（ISO / Unix / MATLAB） | ISO 时间、Unix 秒/毫秒与 MATLAB datenum 互转 | [`Time_conversion.html`](tools/Time_conversion.html) |
+| Ramping field（分段磁场爬升） | 按分段结束磁场与速度计算每段到达时间；以磁场为 X 轴，同时绘制速度和从 0 T 起的累计时间 | [`ramping-field.html`](tools/ramping-field.html) |
 
 ## 快速开始
 
@@ -38,7 +39,8 @@ QuickTools/
 ├── tools/
 │   ├── Shift_calculation.html     # 能量/波数换算与作差
 │   ├── Energy_calculation.html    # 磁场中 GaAs 能量标度（l_B / E_C / E_Z）
-│   └── Time_conversion.html       # ISO / Unix / MATLAB 时间转换
+│   ├── Time_conversion.html       # ISO / Unix / MATLAB 时间转换
+│   └── ramping-field.html         # 分段磁场爬升计划与速度图
 ├── README.md
 ├── index.html (unfinished)           # 单文件在线入口：目录 + 全部工具原地切换（由构建脚本生成）
 └── total.html (unfinished)           # 全工具内联合并产物（构建脚本生成）
