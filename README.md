@@ -4,6 +4,11 @@
 
 ## 特性
 
+- 四个可独立运行的单文件 HTML 工具
+- GitHub Pages 在线访问
+- 每个工具页提供【其它工具】和【离线到本地】
+- 首页支持 PWA，可将整个工具箱添加到手机或电脑桌面
+- PWA 缓存工具页面，支持断网后继续使用
 
 ## 工具列表
 
@@ -32,6 +37,12 @@
 
 入口页 `index.html` 提供工具目录，并通过按钮跳转到各工具的 GitHub Pages 页面。
 
+### 离线使用
+
+- 在单个工具页点击【离线到本地】，下载当前 HTML 文件后即可单独打开。
+- 在首页点击【离线所有工具】。手机浏览器可点击“分享”按钮，再选择“添加到主屏幕”；电脑端 Chrome / Edge 可选择安装 QuickTools。
+- 安装后的 PWA 会缓存首页和全部工具，之后可以从桌面打开并在离线状态下使用。
+
 ## 项目结构
 
 ```
@@ -42,12 +53,17 @@ QuickTools/
 │   ├── Time_conversion.html       # ISO / Unix / MATLAB 时间转换
 │   └── ramping-field.html         # 分段磁场爬升计划与速度图
 ├── README.md
-└── index.html                         # 在线入口：工具目录与 GitHub Pages 链接
+├── index.html                         # 在线入口、PWA 安装入口与工具目录
+├── manifest.webmanifest               # PWA 应用信息
+├── service-worker.js                  # 离线缓存与更新机制
+└── icons/icon.svg                     # PWA 图标
 ```
 
 ## 状态
 
-当前包含四个可独立使用的 HTML 工具，入口页可直接访问各工具的 GitHub Pages 页面。
+当前版本：`v0.2`。
+
+项目包含四个可独立使用的 HTML 工具。入口页可访问各工具的 GitHub Pages 页面，也可以安装为 PWA；Service Worker 当前缓存版本为 `quicktools-v2`。
 
 ## License
 
