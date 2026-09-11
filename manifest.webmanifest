@@ -1,0 +1,19 @@
+{
+  "name": "QuickTools",
+  "short_name": "QuickTools",
+  "description": "一组可离线使用的单文件 HTML 小工具。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f4e9",
+  "theme_color": "#5b7184",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

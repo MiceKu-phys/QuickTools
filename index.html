@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="QuickTools：一组自包含的在线 HTML 小工具。">
+  <meta name="theme-color" content="#f8f4e9">
+  <link rel="manifest" href="./manifest.webmanifest">
   <title>QuickTools · HTML 小工具集</title>
   <style>
     :root {
@@ -47,10 +49,11 @@
     .eyebrow { display: none; }
     h1 { margin: 0 0 5px; font: 500 26px Georgia, "Songti SC", "Noto Serif SC", "SimSun", serif; letter-spacing: .5px; }
     .intro { margin: 0; color: var(--muted); font-size: 13.5px; }
-    .theme { padding: 5px 10px; border: 1px solid var(--line); color: var(--muted); background: transparent; font-family: inherit; font-size: 11.5px; line-height: 1.6; cursor: pointer; white-space: nowrap; }
-    .theme:hover { border-color: var(--accent); color: var(--accent); }
+    .theme, .install { padding: 5px 10px; border: 1px solid var(--line); color: var(--muted); background: transparent; font-family: inherit; font-size: 11.5px; line-height: 1.6; cursor: pointer; white-space: nowrap; }
+    .theme:hover, .install:hover { border-color: var(--accent); color: var(--accent); }
 
     .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .header-actions { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
     .card {
       display: flex;
       flex-direction: column;
@@ -78,6 +81,7 @@
       transition: all .12s;
     }
     .button:hover, .button:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .install:disabled { cursor: default; opacity: .65; }
     .button:focus-visible, .theme:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
     footer { margin-top: 18px; color: var(--muted); text-align: center; font: 12px Georgia, "Songti SC", serif; }
     footer a { color: inherit; }
@@ -96,7 +100,10 @@
       <h1>小工具，随时打开。</h1>
       <p class="intro">一组自包含的单文件 HTML 工具，适合在手机、平板或任意浏览器中使用。点击下方按钮即可打开对应的 GitHub Pages 页面。</p>
       </div>
-      <button class="theme" id="themeBtn" type="button">☾ 夜纸</button>
+      <div class="header-actions">
+        <button class="install" id="installBtn" type="button">保存整个工具箱</button>
+        <button class="theme" id="themeBtn" type="button">☾ 夜纸</button>
+      </div>
     </header>
 
     <section class="tools" aria-label="工具列表">
@@ -130,12 +137,39 @@
     </footer>
   </main>
   <script>
+    let installPrompt;
+    const installBtn = document.getElementById('installBtn');
     const themeBtn = document.getElementById('themeBtn');
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installPrompt = event;
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!installPrompt) {
+        alert('请在浏览器菜单中选择“添加到主屏幕”或“安装 QuickTools”。');
+        return;
+      }
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installBtn.textContent = '已保存到设备';
+      installBtn.disabled = true;
+    });
+
     themeBtn.addEventListener('click', () => {
       const dark = document.documentElement.getAttribute('data-theme') === 'dark';
       document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
       themeBtn.textContent = dark ? '☾ 夜纸' : '☀ 纸白';
     });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js');
+    }
   </script>
 </body>
 </html>
