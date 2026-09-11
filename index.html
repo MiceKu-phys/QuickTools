@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="QuickTools：一组自包含的在线 HTML 小工具。">
+  <title>QuickTools · HTML 小工具集</title>
+  <style>
+    :root {
+      --paper: #f8f4e9;
+      --card: #fdfbf4;
+      --ink: #30302c;
+      --muted: #8a867a;
+      --line: #e7e0cf;
+      --rule: #d5cdb6;
+      --accent: #5b7184;
+      --code: #47525f;
+    }
+
+    html[data-theme="dark"] {
+      --paper: #1b1914;
+      --card: #232018;
+      --ink: #e6e0d0;
+      --muted: #9a9384;
+      --line: #3d3729;
+      --rule: #58503a;
+      --accent: #97aec3;
+      --code: #cdd7e0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px 18px 60px;
+      color: var(--ink);
+      background: var(--paper);
+      font: 15px/1.6 "Segoe UI", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    main { max-width: 920px; margin: 0 auto; }
+
+    header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+    .hero { flex: 1; min-width: 0; }
+    .eyebrow { display: none; }
+    h1 { margin: 0 0 5px; font: 500 26px Georgia, "Songti SC", "Noto Serif SC", "SimSun", serif; letter-spacing: .5px; }
+    .intro { margin: 0; color: var(--muted); font-size: 13.5px; }
+    .theme { padding: 5px 10px; border: 1px solid var(--line); color: var(--muted); background: transparent; font-family: inherit; font-size: 11.5px; line-height: 1.6; cursor: pointer; white-space: nowrap; }
+    .theme:hover { border-color: var(--accent); color: var(--accent); }
+
+    .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .card {
+      display: flex;
+      flex-direction: column;
+      min-height: 205px;
+      padding: 20px 24px 16px;
+      border: 1px solid var(--line);
+      background: var(--card);
+    }
+    .card h2 { margin: 0 0 13px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font: 500 17px/1.3 Georgia, "Songti SC", serif; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      align-self: flex-start;
+      gap: 6px;
+      margin-top: 18px;
+      padding: 6px 13px;
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      background: transparent;
+      font-size: 12.5px;
+      letter-spacing: .05em;
+      text-decoration: none;
+      transition: all .12s;
+    }
+    .button:hover, .button:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .button:focus-visible, .theme:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+    footer { margin-top: 18px; color: var(--muted); text-align: center; font: 12px Georgia, "Songti SC", serif; }
+    footer a { color: inherit; }
+
+    @media (max-width: 560px) {
+      body { padding: 20px 11px 40px; }
+      h1 { font-size: 22px; }
+      .card { padding: 17px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="hero">
+      <h1>小工具，随时打开。</h1>
+      <p class="intro">一组自包含的单文件 HTML 工具，适合在手机、平板或任意浏览器中使用。点击下方按钮即可打开对应的 GitHub Pages 页面。</p>
+      </div>
+      <button class="theme" id="themeBtn" type="button">☾ 夜纸</button>
+    </header>
+
+    <section class="tools" aria-label="工具列表">
+      <article class="card">
+        <h2>Energy shift calculation</h2>
+        <p>光子能量、波长、频率与波数互算，并计算谱线之间的能量差。</p>
+        <a class="button" href="https://miceKu-phys.github.io/QuickTools/tools/Shift_calculation.html">打开工具 ↗</a>
+      </article>
+
+      <article class="card">
+        <h2>Energy scale in GaAs</h2>
+        <p>计算 GaAs 中的磁长度、回旋能、库伦能与塞曼能等特征能量。</p>
+        <a class="button" href="https://miceKu-phys.github.io/QuickTools/tools/Energy_calculation.html">打开工具 ↗</a>
+      </article>
+
+      <article class="card">
+        <h2>Time conversion</h2>
+        <p>在 ISO 时间、Unix 秒/毫秒和 MATLAB datenum 之间进行转换。</p>
+        <a class="button" href="https://miceKu-phys.github.io/QuickTools/tools/Time_conversion.html">打开工具 ↗</a>
+      </article>
+
+      <article class="card">
+        <h2>Ramping field</h2>
+        <p>规划分段磁场爬升过程，计算各段到达时间并绘制速度变化。</p>
+        <a class="button" href="https://miceKu-phys.github.io/QuickTools/tools/ramping-field.html">打开工具 ↗</a>
+      </article>
+    </section>
+
+    <footer>
+      <a href="https://github.com/miceKu-phys/QuickTools">查看 GitHub 仓库 ↗</a>
+    </footer>
+  </main>
+  <script>
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+      themeBtn.textContent = dark ? '☾ 夜纸' : '☀ 纸白';
+    });
+  </script>
+</body>
+</html>
