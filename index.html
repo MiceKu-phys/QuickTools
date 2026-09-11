@@ -101,7 +101,7 @@
       <p class="intro">一组自包含的单文件 HTML 工具，适合在手机、平板或任意浏览器中使用。点击下方按钮即可打开对应的 GitHub Pages 页面。</p>
       </div>
       <div class="header-actions">
-        <button class="install" id="installBtn" type="button">保存整个工具箱</button>
+        <button class="install" id="installBtn" type="button">离线所有工具</button>
         <button class="theme" id="themeBtn" type="button">☾ 夜纸</button>
       </div>
     </header>
@@ -148,7 +148,7 @@
 
     installBtn.addEventListener('click', async () => {
       if (!installPrompt) {
-        alert('请在浏览器菜单中选择“添加到主屏幕”或“安装 QuickTools”。');
+        alert('手机浏览器点击“分享”按钮 → “添加到主屏幕”。');
         return;
       }
       installPrompt.prompt();
