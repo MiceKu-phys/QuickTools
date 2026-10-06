@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quicktools-v4';
+const CACHE_NAME = 'quicktools-v5';
 const APP_SHELL = [
   './',
   './index.html',
@@ -11,35 +11,47 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await Promise.all(APP_SHELL.map(async (path) => {
+      const response = await fetch(new Request(path, { cache: 'reload' }));
+      if (!response.ok) throw new Error(path);
+      await cache.put(path, response);
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
+    await self.clients.claim();
+    const windows = await self.clients.matchAll({ type: 'window' });
+    await Promise.all(windows.map((client) => (
+      typeof client.navigate === 'function' ? client.navigate(client.url) : undefined
+    )));
+  })());
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      const response = await fetch(event.request);
+      if (response && response.ok && response.type === 'basic') {
+        await cache.put(event.request, response.clone());
+      }
+      return response;
+    } catch (error) {
+      const cached = await caches.match(event.request);
       if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') return response;
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        return response;
+      return new Response('离线且没有缓存', {
+        status: 503,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
       });
-    })
-  );
+    }
+  })());
 });

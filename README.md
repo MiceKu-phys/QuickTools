@@ -63,7 +63,7 @@ QuickTools/
 
 当前版本：`v0.2`。
 
-项目包含四个可独立使用的 HTML 工具。入口页可访问各工具的 GitHub Pages 页面，也可以安装为 PWA；Service Worker 当前缓存版本为 `quicktools-v2`。
+项目包含四个可独立使用的 HTML 工具。入口页可访问各工具的 GitHub Pages 页面，也可以安装为 PWA。Service Worker 缓存版本为 `quicktools-v5`：在线时先向网络要新页面，断网才用缓存。
 
 ## License
 
