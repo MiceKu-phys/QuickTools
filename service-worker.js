@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quicktools-v5';
+const CACHE_NAME = 'quicktools-v6';
 const APP_SHELL = [
   './',
   './index.html',

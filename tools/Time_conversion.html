@@ -59,4 +59,5 @@ function setNow(){const d=new Date();$('dateInput').value=`${d.getFullYear()}-${
 $('nowBtn').onclick=setNow;$('exampleBtn').onclick=()=>{$('stampInput').value='1720000000.125';$('stampUnit').value='s';render()};$('clearBtn').onclick=()=>{$('stampInput').value='';render()};['dateInput','zone','stampInput','stampUnit'].forEach(id=>{ $(id).addEventListener('input',render); $(id).addEventListener('change',render); });
 $('themeBtn').onclick=()=>{const dark=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',dark?'':'dark');$('themeBtn').textContent=dark?'☼ 夜纸':'☀ 纸白'};
 setNow();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('../service-worker.js', { updateViaCache: 'none' }).then((reg) => reg.update()).catch(() => {});
 </script></body></html>

@@ -67,4 +67,5 @@ $('resetBtn').onclick=()=>{segments=DEFAULTS.map(x=>({...x}));fieldUnit='T';time
 function readQuery(which){const raw=num($(which==='start'?'startInput':'endInput').value);queryT[which]=Number.isFinite(raw)?fromField(raw):NaN;renderTarget(buildData())}
 $('startInput').addEventListener('input',()=>readQuery('start'));$('endInput').addEventListener('input',()=>readQuery('end'));
 $('themeBtn').onclick=()=>{const dark=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',dark?'':'dark');$('themeBtn').textContent=dark?'☼ 夜纸':'☀ 纸白'};refresh();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('../service-worker.js', { updateViaCache: 'none' }).then((reg) => reg.update()).catch(() => {});
 </script></body></html>
